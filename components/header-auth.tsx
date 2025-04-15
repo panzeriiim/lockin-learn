@@ -18,8 +18,8 @@ export default async function AuthButton() {
         <div className="flex gap-4 items-center">
           <div>
             <Badge
-              variant={"default"}
-              className="font-normal pointer-events-none"
+              variant="warning"
+              className="font-normal pointer-events-none bg-warning/20 text-foreground"
             >
               Please update .env.local file with anon key and url
             </Badge>
@@ -28,7 +28,7 @@ export default async function AuthButton() {
             <Button
               asChild
               size="sm"
-              variant={"outline"}
+              variant="outline"
               disabled
               className="opacity-75 cursor-none pointer-events-none"
             >
@@ -37,7 +37,7 @@ export default async function AuthButton() {
             <Button
               asChild
               size="sm"
-              variant={"default"}
+              variant="default"
               disabled
               className="opacity-75 cursor-none pointer-events-none"
             >
@@ -50,19 +50,34 @@ export default async function AuthButton() {
   }
   return user ? (
     <div className="flex items-center gap-4">
-      Hey, {user.email}!
+      <span className="text-muted-foreground">Hey, {user.email}!</span>
       <form action={signOutAction}>
-        <Button type="submit" variant={"outline"}>
+        <Button 
+          type="submit" 
+          variant="outline"
+          size="sm"
+          className="border-primary text-primary hover:bg-primary/10"
+        >
           Sign out
         </Button>
       </form>
     </div>
   ) : (
     <div className="flex gap-2">
-      <Button asChild size="sm" variant={"outline"}>
+      <Button 
+        asChild 
+        size="sm" 
+        variant="outline"
+        className="border-primary text-primary hover:bg-primary/10"
+      >
         <Link href="/sign-in">Sign in</Link>
       </Button>
-      <Button asChild size="sm" variant={"default"}>
+      <Button 
+        asChild 
+        size="sm" 
+        variant="default"
+        className="bg-primary hover:bg-primary/90"
+      >
         <Link href="/sign-up">Sign up</Link>
       </Button>
     </div>

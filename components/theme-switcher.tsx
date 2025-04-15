@@ -30,43 +30,56 @@ const ThemeSwitcher = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size={"sm"}>
+        <Button 
+          variant="ghost" 
+          size="sm"
+          className="hover:bg-primary/10 hover:text-primary"
+        >
           {theme === "light" ? (
             <Sun
               key="light"
               size={ICON_SIZE}
-              className={"text-muted-foreground"}
+              className="text-muted-foreground hover:text-primary"
             />
           ) : theme === "dark" ? (
             <Moon
               key="dark"
               size={ICON_SIZE}
-              className={"text-muted-foreground"}
+              className="text-muted-foreground hover:text-primary"
             />
           ) : (
             <Laptop
               key="system"
               size={ICON_SIZE}
-              className={"text-muted-foreground"}
+              className="text-muted-foreground hover:text-primary"
             />
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-content" align="start">
+      <DropdownMenuContent className="w-content border border-border/50" align="start">
         <DropdownMenuRadioGroup
           value={theme}
           onValueChange={(e) => setTheme(e)}
         >
-          <DropdownMenuRadioItem className="flex gap-2" value="light">
-            <Sun size={ICON_SIZE} className="text-muted-foreground" />{" "}
+          <DropdownMenuRadioItem 
+            className="flex gap-2 hover:bg-primary/10 hover:text-primary cursor-pointer" 
+            value="light"
+          >
+            <Sun size={ICON_SIZE} /> 
             <span>Light</span>
           </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem className="flex gap-2" value="dark">
-            <Moon size={ICON_SIZE} className="text-muted-foreground" />{" "}
+          <DropdownMenuRadioItem 
+            className="flex gap-2 hover:bg-primary/10 hover:text-primary cursor-pointer" 
+            value="dark"
+          >
+            <Moon size={ICON_SIZE} /> 
             <span>Dark</span>
           </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem className="flex gap-2" value="system">
-            <Laptop size={ICON_SIZE} className="text-muted-foreground" />{" "}
+          <DropdownMenuRadioItem 
+            className="flex gap-2 hover:bg-primary/10 hover:text-primary cursor-pointer" 
+            value="system"
+          >
+            <Laptop size={ICON_SIZE} /> 
             <span>System</span>
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
