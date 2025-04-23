@@ -236,14 +236,14 @@ export default function LearningSection() {
       {/* Main Content Area */}
       <div
         className={cn(
-          "flex h-[calc(100vh-3.5rem)]",
+          "flex h-[calc(100vh-3.5rem)] relative",
           isFocusMode && "opacity-90"
         )}
       >
         {/* Left Panel - Lesson Navigation */}
         <div
           className={cn(
-            "border-r border-border/50 bg-background/95 transition-all duration-300 h-full",
+            "border-r border-border/50 bg-background/95 transition-all duration-300 h-full absolute z-50",
             isNavOpen ? "w-[300px]" : "w-[50px]",
             isFocusMode && "bg-[#1a1a1a]/95 border-[#2a2a2a]"
           )}
@@ -286,23 +286,26 @@ export default function LearningSection() {
           </div>
         </div>
 
-        {/* Center Panel - Document Viewer */}
-        <div className="flex-1 flex flex-col">
-          <PDFViewer pdfUrl="/sample.pdf" />
-        </div>
+        {/* Main Content Area */}
+        <div className="flex flex-1">
+          {/* Center Panel - Document Viewer */}
+          <div className="flex-1 flex flex-col">
+            <PDFViewer pdfUrl="/sample.pdf" />
+          </div>
 
-        {/* Right Panel - AI Assistant */}
-        <div
-          className={cn(
-            "w-[500px] border-l border-border/50 flex-none",
-            isFocusMode && "bg-[#1a1a1a] border-[#2a2a2a]"
-          )}
-        >
-          <ChatInterface
-            sections={mockSections}
-            currentSectionId={currentSectionId}
-            onSectionChange={setCurrentSectionId}
-          />
+          {/* Right Panel - AI Assistant */}
+          <div
+            className={cn(
+              "w-[500px] border-l border-border/50 flex-none",
+              isFocusMode && "bg-[#1a1a1a] border-[#2a2a2a]"
+            )}
+          >
+            <ChatInterface
+              sections={mockSections}
+              currentSectionId={currentSectionId}
+              onSectionChange={setCurrentSectionId}
+            />
+          </div>
         </div>
       </div>
     </main>
