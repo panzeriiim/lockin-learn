@@ -248,11 +248,21 @@ export default function LearningSection() {
             isFocusMode && "bg-[#1a1a1a]/95 border-[#2a2a2a]"
           )}
         >
-          <div className="p-4 h-full overflow-y-auto">
+          {/* Adjust padding when collapsed */}
+          <div
+            className={cn(
+              "h-full overflow-y-auto",
+              isNavOpen ? "p-4" : "p-1 pt-4"
+            )}
+          >
             <Button
               variant="ghost"
-              size="sm"
-              className="w-full justify-between mb-4 sticky top-0 bg-background/95 z-10"
+              // Change size and centering based on isNavOpen
+              size={isNavOpen ? "sm" : "icon"}
+              className={cn(
+                "mb-4 sticky top-0 bg-background/95 z-10",
+                isNavOpen ? "w-full justify-between" : "mx-auto flex" // Use mx-auto and flex for centering icon button
+              )}
               onClick={() => setIsNavOpen(!isNavOpen)}
             >
               {isNavOpen ? (
