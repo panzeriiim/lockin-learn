@@ -1,84 +1,189 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Timer, MessageCircle, BookOpen, Maximize2, ChevronLeft, ChevronRight, BarChart, FileText } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Timer,
+  MessageCircle,
+  Maximize2,
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  Focus,
+  Keyboard,
+} from "lucide-react";
 import { PomodoroTimer } from "@/components/ui/pomodoro-timer";
+import { PDFViewer } from "@/components/ui/pdf-viewer";
+import { ChatInterface } from "@/components/ui/chat-interface";
+import { LearningStats } from "@/components/ui/learning-stats";
 import { LessonNavigation } from "@/components/ui/lesson-navigation";
-import { ChatMessage } from "@/components/ui/chat-message";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 // Mock data for sections
 const mockSections = [
-  { id: '1', title: 'Introduction to OOP', status: 'completed' as const, duration: 15 },
-  { id: '2', title: 'Classes and Objects', status: 'in-progress' as const, duration: 25 },
-  { id: '3', title: 'Inheritance', status: 'not-started' as const, duration: 20 },
-  { id: '4', title: 'Polymorphism', status: 'not-started' as const, duration: 30 },
-  { id: '5', title: 'Encapsulation', status: 'not-started' as const, duration: 20 },
+  {
+    id: "1",
+    title: "Introduction to OOP",
+    status: "completed" as const,
+    duration: 15,
+  },
+  {
+    id: "2",
+    title: "Classes and Objects",
+    status: "in-progress" as const,
+    duration: 25,
+  },
+  {
+    id: "3",
+    title: "Inheritance",
+    status: "not-started" as const,
+    duration: 20,
+  },
+  {
+    id: "4",
+    title: "Polymorphism",
+    status: "not-started" as const,
+    duration: 30,
+  },
+  {
+    id: "5",
+    title: "Encapsulation",
+    status: "not-started" as const,
+    duration: 20,
+  },
 ];
 
-interface Message {
-  content: string;
-  role: "assistant" | "user";
-  timestamp: Date;
-}
+const keyboardShortcuts = [
+  { key: "⌘ + →", description: "Next page" },
+  { key: "⌘ + ←", description: "Previous page" },
+  { key: "⌘ + L", description: "Toggle focus mode" },
+  { key: "⌘ + K", description: "Show keyboard shortcuts" },
+  { key: "⌘ + T", description: "Toggle timer" },
+  { key: "⌘ + /", description: "Focus chat" },
+];
 
 export default function LearningSection() {
-  const [currentSectionId, setCurrentSectionId] = useState('2');
+  const [currentSectionId, setCurrentSectionId] = useState("2");
   const [showTimer, setShowTimer] = useState(false);
-  const [activeTab, setActiveTab] = useState<'document' | 'chat'>('document');
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      content: "Hi! I'm your AI mentor for this section. I notice you're learning about Object-Oriented Programming in C++. Feel free to ask me any questions as you read through the material.",
-      role: "assistant",
-      timestamp: new Date()
-    }
-  ]);
-  const [inputMessage, setInputMessage] = useState('');
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
+  const [activeTab, setActiveTab] = useState<"document" | "chat">("document");
+  const [isFocusMode, setIsFocusMode] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(true);
 
-  // Auto scroll to bottom when new messages arrive
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
-
-    const newMessage: Message = {
-      content: inputMessage,
-      role: "user",
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, newMessage]);
-    setInputMessage('');
-
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse: Message = {
-        content: "I'll help you understand that. In Object-Oriented Programming, classes are like blueprints for creating objects. Each object can have its own properties (attributes) and methods (functions). This helps organize code and model real-world concepts more naturally.",
-        role: "assistant",
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, aiResponse]);
-    }, 1000);
+  // Mock learning stats
+  const learningStats = {
+    pagesRead: 15,
+    totalPages: 45,
+    minutesSpent: 45,
+    sectionsCompleted: 2,
+    totalSections: 5,
+    quizScore: 85,
   };
 
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey) {
+        switch (e.key) {
+          case "ArrowRight":
+            // Handle next page
+            break;
+          case "ArrowLeft":
+            // Handle previous page
+            break;
+          case "l":
+            e.preventDefault();
+            setIsFocusMode(!isFocusMode);
+            break;
+          case "k":
+            e.preventDefault();
+            setShowKeyboardShortcuts(true);
+            break;
+          case "t":
+            e.preventDefault();
+            setShowTimer(!showTimer);
+            break;
+          case "/":
+            e.preventDefault();
+            setActiveTab("chat");
+            break;
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isFocusMode, showTimer]);
+
   return (
-    <main className="min-h-screen bg-background">
+    <main
+      className={cn(
+        "min-h-screen bg-background transition-colors duration-200",
+        isFocusMode && "bg-[#1a1a1a]"
+      )}
+    >
       {/* Top Navigation Bar */}
-      <nav className="h-14 border-b border-border/50 flex items-center px-4 justify-between bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+      <nav
+        className={cn(
+          "h-14 border-b border-border/50 flex items-center px-4 justify-between bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50",
+          isFocusMode &&
+            "bg-[#1a1a1a]/95 supports-[backdrop-filter]:bg-[#1a1a1a]/60"
+        )}
+      >
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon">
             <ChevronLeft className="h-5 w-5" />
           </Button>
-          <h1 className="font-heading font-semibold line-clamp-1">C++ Part 1: Object-Oriented Programming Basics</h1>
+          <h1 className="font-heading font-semibold line-clamp-1">
+            C++ Part 1: Object-Oriented Programming Basics
+          </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsFocusMode(!isFocusMode)}
+            className={cn(isFocusMode && "text-primary")}
+          >
+            <Focus className="h-5 w-5" />
+          </Button>
+          <Dialog
+            open={showKeyboardShortcuts}
+            onOpenChange={setShowKeyboardShortcuts}
+          >
+            <DialogTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Keyboard className="h-5 w-5" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Keyboard Shortcuts</DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-2 gap-4 py-4">
+                {keyboardShortcuts.map((shortcut, i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
+                      {shortcut.key}
+                    </code>
+                    <span className="text-sm text-muted-foreground">
+                      {shortcut.description}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Button
+            variant="ghost"
+            size="sm"
             className="gap-2"
             onClick={() => setShowTimer(!showTimer)}
           >
@@ -95,21 +200,23 @@ export default function LearningSection() {
       <div className="md:hidden border-b border-border/50 bg-card">
         <div className="flex">
           <Button
-            variant={activeTab === 'document' ? 'ghost' : 'ghost'}
-            className={`flex-1 justify-center rounded-none border-b-2 ${
-              activeTab === 'document' ? 'border-primary' : 'border-transparent'
-            }`}
-            onClick={() => setActiveTab('document')}
+            variant={activeTab === "document" ? "ghost" : "ghost"}
+            className={cn(
+              "flex-1 justify-center rounded-none border-b-2",
+              activeTab === "document" ? "border-primary" : "border-transparent"
+            )}
+            onClick={() => setActiveTab("document")}
           >
             <FileText className="h-4 w-4 mr-2" />
             Document
           </Button>
           <Button
-            variant={activeTab === 'chat' ? 'ghost' : 'ghost'}
-            className={`flex-1 justify-center rounded-none border-b-2 ${
-              activeTab === 'chat' ? 'border-primary' : 'border-transparent'
-            }`}
-            onClick={() => setActiveTab('chat')}
+            variant={activeTab === "chat" ? "ghost" : "ghost"}
+            className={cn(
+              "flex-1 justify-center rounded-none border-b-2",
+              activeTab === "chat" ? "border-primary" : "border-transparent"
+            )}
+            onClick={() => setActiveTab("chat")}
           >
             <MessageCircle className="h-4 w-4 mr-2" />
             Chat
@@ -120,118 +227,72 @@ export default function LearningSection() {
       {/* Timer Overlay */}
       {showTimer && (
         <div className="fixed top-20 right-4 z-50 w-[300px]">
-          <PomodoroTimer 
-            onSessionComplete={() => console.log('Session complete')}
+          <PomodoroTimer
+            onSessionComplete={() => console.log("Session complete")}
           />
         </div>
       )}
 
       {/* Main Content Area */}
-      <div className="flex h-[calc(100vh-3.5rem)] md:h-[calc(100vh-3.5rem)]">
-        {/* Left Panel - Document Viewer */}
-        <div className={`${
-          activeTab === 'document' ? 'flex' : 'hidden'
-        } md:flex flex-1 border-r border-border/50 overflow-hidden flex-col`}>
-          <div className="flex-1 overflow-y-auto p-6">
-            {/* Placeholder for PDF/Document Viewer */}
-            <div className="bg-muted/30 rounded-lg h-full flex items-center justify-center">
-              <p className="text-muted-foreground">Document Viewer Coming Soon</p>
-            </div>
-          </div>
-          
-          {/* Bottom Progress Bar */}
-          <div className="h-12 border-t border-border/50 bg-card flex items-center px-4 justify-between">
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">Page 15 of 45</span>
-              <div className="w-48 h-1.5 bg-secondary/30 rounded-full overflow-hidden">
-                <div className="w-1/3 h-full bg-primary rounded-full"/>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon">
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon">
+      <div
+        className={cn(
+          "flex h-[calc(100vh-3.5rem)]",
+          isFocusMode && "opacity-90"
+        )}
+      >
+        {/* Left Panel - Lesson Navigation */}
+        <div
+          className={cn(
+            "border-r border-border/50 bg-background/95 transition-all duration-300 h-full",
+            isNavOpen ? "w-[300px]" : "w-[50px]",
+            isFocusMode && "bg-[#1a1a1a]/95 border-[#2a2a2a]"
+          )}
+        >
+          <div className="p-4 h-full overflow-y-auto">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-between mb-4 sticky top-0 bg-background/95 z-10"
+              onClick={() => setIsNavOpen(!isNavOpen)}
+            >
+              {isNavOpen ? (
+                <>
+                  Lesson Progress
+                  <ChevronLeft className="h-4 w-4" />
+                </>
+              ) : (
                 <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Metadata Panel */}
-          <div className="h-24 border-t border-border/50 bg-card/50">
-            <div className="h-full grid grid-cols-4 divide-x divide-border/50">
-              <div className="flex flex-col items-center justify-center p-2">
-                <span className="text-2xl font-semibold text-primary">15</span>
-                <span className="text-xs text-muted-foreground">Pages Read</span>
+              )}
+            </Button>
+            {isNavOpen && (
+              <div className="space-y-2">
+                <LessonNavigation
+                  sections={mockSections}
+                  currentSectionId={currentSectionId}
+                  onSectionChange={setCurrentSectionId}
+                />
               </div>
-              <div className="flex flex-col items-center justify-center p-2">
-                <span className="text-2xl font-semibold text-primary">45</span>
-                <span className="text-xs text-muted-foreground">Minutes Spent</span>
-              </div>
-              <div className="flex flex-col items-center justify-center p-2">
-                <span className="text-2xl font-semibold text-primary">2/5</span>
-                <span className="text-xs text-muted-foreground">Sections Done</span>
-              </div>
-              <div className="flex flex-col items-center justify-center p-2">
-                <span className="text-2xl font-semibold text-primary">85%</span>
-                <span className="text-xs text-muted-foreground">Quiz Score</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
+        {/* Center Panel - Document Viewer */}
+        <div className="flex-1 flex flex-col">
+          <PDFViewer pdfUrl="/sample.pdf" />
+        </div>
+
         {/* Right Panel - AI Assistant */}
-        <div className={`${
-          activeTab === 'chat' ? 'flex' : 'hidden'
-        } md:flex md:w-[400px] flex-1 md:flex-none flex-col`}>
-          {/* Section Navigation */}
-          <div className="p-4 border-b border-border/50">
-            <LessonNavigation
-              sections={mockSections}
-              currentSectionId={currentSectionId}
-              onSectionChange={setCurrentSectionId}
-            />
-          </div>
-
-          {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="space-y-4">
-              {messages.map((message, index) => (
-                <ChatMessage
-                  key={index}
-                  content={message.content}
-                  role={message.role}
-                  timestamp={message.timestamp}
-                />
-              ))}
-              <div ref={chatEndRef} />
-            </div>
-          </div>
-
-          {/* Chat Input */}
-          <div className="h-24 border-t border-border/50 p-4">
-            <div className="relative">
-              <textarea 
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-                className="w-full h-16 rounded-lg border border-border/50 bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="Ask your AI mentor a question..."
-              />
-              <Button 
-                className="absolute right-2 bottom-2"
-                size="sm"
-                onClick={handleSendMessage}
-              >
-                Ask
-              </Button>
-            </div>
-          </div>
+        <div
+          className={cn(
+            "w-[500px] border-l border-border/50 flex-none",
+            isFocusMode && "bg-[#1a1a1a] border-[#2a2a2a]"
+          )}
+        >
+          <ChatInterface
+            sections={mockSections}
+            currentSectionId={currentSectionId}
+            onSectionChange={setCurrentSectionId}
+          />
         </div>
       </div>
     </main>
