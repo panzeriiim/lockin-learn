@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -12,6 +12,7 @@ import {
   FileText,
   Focus,
   Keyboard,
+  GripVertical,
 } from "lucide-react";
 import { PomodoroTimer } from "@/components/ui/pomodoro-timer";
 import { PDFViewer } from "@/components/ui/pdf-viewer";
@@ -76,6 +77,8 @@ export default function LearningSection() {
   const [activeTab, setActiveTab] = useState<"document" | "chat">("document");
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [isNavOpen, setIsNavOpen] = useState(true);
+  const [chatWidth, setChatWidth] = useState(500);
+  const [isResizing, setIsResizing] = useState(false);
 
   // Mock learning stats
   const learningStats = {
@@ -122,11 +125,46 @@ export default function LearningSection() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isFocusMode, showTimer]);
 
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isResizing) return;
+
+      const newWidth = window.innerWidth - e.clientX;
+      // Set minimum and maximum width constraints
+      if (newWidth > 300 && newWidth < window.innerWidth - 400) {
+        setChatWidth(newWidth);
+      }
+    },
+    [isResizing]
+  );
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing, handleMouseMove, handleMouseUp]);
+
   return (
     <main
       className={cn(
         "min-h-screen bg-background transition-colors duration-200",
-        isFocusMode && "bg-[#1a1a1a]"
+        isFocusMode && "bg-[#1a1a1a]",
+        isResizing && "select-none"
       )}
     >
       {/* Top Navigation Bar */}
@@ -287,16 +325,33 @@ export default function LearningSection() {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex flex-1">
+        <div
+          className="flex flex-1 h-full"
+          style={{ marginLeft: isNavOpen ? "300px" : "50px" }}
+        >
           {/* Center Panel - Document Viewer */}
-          <div className="flex-1 flex flex-col">
-            <PDFViewer pdfUrl="/sample.pdf" />
+          <div className="flex-1 h-full relative min-w-0">
+            <div className="absolute inset-0">
+              <PDFViewer pdfUrl="/sample.pdf" />
+            </div>
+          </div>
+
+          {/* Resizable Handle */}
+          <div
+            className={cn(
+              "w-1 hover:w-2 cursor-col-resize flex items-center justify-center border-l border-r border-border/50 bg-border/50 hover:bg-primary/50 transition-colors",
+              isResizing && "bg-primary/50"
+            )}
+            onMouseDown={handleMouseDown}
+          >
+            <GripVertical className="h-4 w-4 text-muted-foreground" />
           </div>
 
           {/* Right Panel - AI Assistant */}
           <div
+            style={{ width: `${chatWidth}px` }}
             className={cn(
-              "w-[500px] border-l border-border/50 flex-none",
+              "h-full flex flex-col border-l border-border/50",
               isFocusMode && "bg-[#1a1a1a] border-[#2a2a2a]"
             )}
           >
