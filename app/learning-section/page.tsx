@@ -281,7 +281,7 @@ export default function LearningSection() {
         {/* Left Panel - Lesson Navigation */}
         <div
           className={cn(
-            "border-r border-border/50 bg-background/95 transition-all duration-300 h-full absolute z-50",
+            "border-r border-border/50 bg-background/95 transition-all duration-300 h-full",
             isNavOpen ? "w-[300px]" : "w-[50px]",
             isFocusMode && "bg-[#1a1a1a]/95 border-[#2a2a2a]"
           )}
@@ -325,10 +325,7 @@ export default function LearningSection() {
         </div>
 
         {/* Main Content Area */}
-        <div
-          className="flex flex-1 h-full"
-          style={{ marginLeft: isNavOpen ? "300px" : "50px" }}
-        >
+        <div className="flex flex-1 h-full">
           {/* Center Panel - Document Viewer */}
           <div className="flex-1 h-full relative min-w-0">
             <div className="absolute inset-0">
