@@ -59,6 +59,18 @@ const mockSections = [
     status: "not-started" as const,
     duration: 20,
   },
+  {
+    id: "6",
+    title: "Abstraction",
+    status: "not-started" as const,
+    duration: 15,
+  },
+  {
+    id: "7",
+    title: "Advanced OOP Concepts",
+    status: "not-started" as const,
+    duration: 40,
+  },
 ];
 
 const keyboardShortcuts = [
@@ -76,7 +88,7 @@ export default function LearningSection() {
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
   const [activeTab, setActiveTab] = useState<"document" | "chat">("document");
   const [isFocusMode, setIsFocusMode] = useState(false);
-  const [isNavOpen, setIsNavOpen] = useState(true);
+  const [isNavOpen, setIsNavOpen] = useState(false);
   const [chatWidth, setChatWidth] = useState(500);
   const [isResizing, setIsResizing] = useState(false);
 
@@ -281,38 +293,13 @@ export default function LearningSection() {
         {/* Left Panel - Lesson Navigation */}
         <div
           className={cn(
-            "border-r border-border/50 bg-background/95 transition-all duration-300 h-full",
-            isNavOpen ? "w-[300px]" : "w-[50px]",
+            "fixed left-0 h-[calc(100vh-3.5rem)] z-40 transition-all duration-300 ease-in-out",
+            isNavOpen ? "translate-x-0" : "-translate-x-[250px]",
             isFocusMode && "bg-[#1a1a1a]/95 border-[#2a2a2a]"
           )}
         >
-          {/* Adjust padding when collapsed */}
-          <div
-            className={cn(
-              "h-full overflow-y-auto",
-              isNavOpen ? "p-4" : "p-1 pt-4"
-            )}
-          >
-            <Button
-              variant="ghost"
-              // Change size and centering based on isNavOpen
-              size={isNavOpen ? "sm" : "icon"}
-              className={cn(
-                "mb-4 sticky top-0 bg-background/95 z-10",
-                isNavOpen ? "w-full justify-between" : "mx-auto flex" // Use mx-auto and flex for centering icon button
-              )}
-              onClick={() => setIsNavOpen(!isNavOpen)}
-            >
-              {isNavOpen ? (
-                <>
-                  Lesson Progress
-                  <ChevronLeft className="h-4 w-4" />
-                </>
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </Button>
-            {isNavOpen && (
+          <div className="w-[250px] h-full border-r border-border/50 bg-background/95">
+            <div className="h-full p-4 overflow-y-auto">
               <div className="space-y-2">
                 <LessonNavigation
                   sections={mockSections}
@@ -320,11 +307,24 @@ export default function LearningSection() {
                   onSectionChange={setCurrentSectionId}
                 />
               </div>
-            )}
+            </div>
           </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            className={cn(
+              "absolute -right-10 top-1/2 -translate-y-1/2 rotate-90 shadow-md",
+              "transition-transform duration-200",
+              isNavOpen && "-rotate-90"
+            )}
+            onClick={() => setIsNavOpen(!isNavOpen)}
+          >
+            <span className="text-xs">Lessons</span>
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
         </div>
 
-        {/* Main Content Area */}
+        {/* Main Content Area with adjusted padding */}
         <div className="flex flex-1 h-full">
           {/* Center Panel - Document Viewer */}
           <div className="flex-1 h-full relative min-w-0">
