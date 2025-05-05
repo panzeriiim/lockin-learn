@@ -62,64 +62,63 @@ export function LessonNavigation({
       </Card>
 
       <div className="space-y-3">
-        {sections.map((section) => (
-          <Card
-            key={section.id}
-            className={cn(
-              "cursor-pointer transition-all duration-200 hover:shadow-md",
-              section.id === currentSectionId &&
-                "ring-2 ring-primary shadow-sm",
-              section.status === "completed" && "bg-primary/5"
-            )}
-            onClick={() => onSectionChange(section.id)}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                {section.status === "completed" ? (
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Check className="h-4 w-4 text-primary" />
-                  </div>
-                ) : (
-                  <div
+        <h2 className="text-lg font-semibold mb-4">Course Progress</h2>
+        <div className="space-y-2">
+          {sections.map((section) => (
+            <button
+              key={section.id}
+              onClick={() => onSectionChange(section.id)}
+              className={cn(
+                "w-full text-left px-3 py-2.5 rounded-lg transition-all duration-200",
+                "hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary/20",
+                "flex items-center gap-3 group",
+                currentSectionId === section.id && "bg-accent"
+              )}
+            >
+              <div className="relative w-5 h-5">
+                <svg className="w-full h-full transform -rotate-90">
+                  <circle
+                    cx="10"
+                    cy="10"
+                    r="8"
+                    strokeWidth="2"
+                    fill="none"
+                    className="stroke-muted-foreground/20"
+                  />
+                  <circle
+                    cx="10"
+                    cy="10"
+                    r="8"
+                    strokeWidth="2"
+                    fill="none"
                     className={cn(
-                      "h-8 w-8 rounded-full flex items-center justify-center",
-                      section.status === "in-progress"
-                        ? "bg-primary/10"
-                        : "bg-muted"
+                      "stroke-primary transition-all duration-200",
+                      section.status === "completed" && "stroke-green-500",
+                      section.status === "not-started" && "stroke-none"
                     )}
-                  >
-                    <div
-                      className={cn(
-                        "h-3 w-3 rounded-full",
-                        section.status === "in-progress"
-                          ? "bg-primary"
-                          : "bg-muted-foreground/30"
-                      )}
-                    />
-                  </div>
-                )}
-                <div className="flex-1">
-                  <h3
-                    className={cn(
-                      "font-medium",
-                      section.status === "completed" && "text-primary"
-                    )}
-                  >
-                    {section.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {section.duration} min
-                  </p>
-                </div>
-                {section.id === currentSectionId && (
-                  <span className="text-xs font-medium text-primary">
-                    Current
-                  </span>
-                )}
+                    strokeDasharray={50}
+                    strokeDashoffset={
+                      section.status === "completed"
+                        ? 0
+                        : section.status === "in-progress"
+                          ? 25
+                          : 50
+                    }
+                  />
+                  {section.status === "completed" && (
+                    <Check className="w-3 h-3 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-green-500" />
+                  )}
+                </svg>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{section.title}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {section.duration} min
+                </p>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
